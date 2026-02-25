@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0d1117; font-family: Inter, sans-serif; }
+  #robustness { width: 100%; max-width: 960px; margin: 0 auto; }
+  .btm-note {
+    text-align: center; color: #484f58; font-size: 11px;
+    padding: 8px 16px; font-family: Inter, sans-serif;
+    max-width: 960px; margin: 0 auto; line-height: 1.5;
+  }
+  @media (max-width: 600px) {
+    .btm-note { font-size: 10px; padding: 6px 10px; }
+  }
+</style>
+</head>
+<body>
+<div id="robustness"></div>
+<div class="btm-note">All negative correlations: faster shooting → higher accuracy. Effect <b>strengthens</b> under maximal controls<br>because removing the fatigue confound (which inflates the raw correlation) reveals the true residual effect.</div>
+<script>
+// --- Mobile-responsive Plotly helper ---
+function isMobile() { return window.innerWidth < 600; }
+function isTablet() { return window.innerWidth >= 600 && window.innerWidth < 900; }
+
+// Full desktop labels vs abbreviated mobile labels
+const desktopLabels = [
+  "Raw (prone)  ",
+  "Raw (standing)  ",
+  "| rank  ",
+  "| rank + bout + position  ",
+  "Maximal controls (5 vars)  ",
+  "Within-athlete (| bout)  "
+];
+const mobileLabels = [
+  "Raw (prone)",
+  "Raw (stand.)",
+  "| rank",
+  "| rank+bout+pos",
+  "Max controls",
+  "Within-athlete"
+];
+
+function getLabels() { return isMobile() ? mobileLabels : desktopLabels; }
+
+function makeTraces() {
+  const labels = getLabels();
+  return [
+    {"type": "bar", "orientation": "h", "name": "Men",
+     "y": labels,
+     "x": [-0.26588978548826964, -0.1952076733707856, -0.0824735556366068, -0.17144448467582568, -0.21170556899079743, -0.07366726950350652],
+     "text": ["-0.266", "-0.195", "-0.082", "-0.171", "-0.212", "-0.074"],
+     "textposition": "inside",
+     "textfont": {"color": "white", "size": isMobile() ? 9 : 11, "family": "Inter"},
+     "marker": {"color": "#00d4ff"},
+     "customdata": ["r = -0.266, p = 0.0000, n = 440", "r = -0.195, p = 0.0000, n = 440", "r = -0.082, p = 0.0144, n = 880", "r = -0.171, p = 0.0000, n = 880", "r = -0.212, p = 0.0000, n = 880", "Mean r = -0.074, 56% negative, n = 95 athletes"],
+     "hovertemplate": "<b>Men</b>: %{customdata}<extra></extra>",
+     "offsetgroup": 0},
+    {"type": "bar", "orientation": "h", "name": "Women",
+     "y": labels,
+     "x": [-0.2904303640164534, -0.23262151655203916, -0.07314760961687328, -0.12263338148885562, -0.1438829898011025, -0.15365036488803205],
+     "text": ["-0.290", "-0.233", "-0.073", "-0.123", "-0.144", "-0.154"],
+     "textposition": "inside",
+     "textfont": {"color": "white", "size": isMobile() ? 9 : 11, "family": "Inter"},
+     "marker": {"color": "#FFB347"},
+     "customdata": ["r = -0.290, p = 0.0000, n = 447", "r = -0.233, p = 0.0000, n = 447", "r = -0.073, p = 0.0287, n = 894", "r = -0.123, p = 0.0002, n = 894", "r = -0.144, p = 0.0000, n = 894", "Mean r = -0.154, 63% negative, n = 93 athletes"],
+     "hovertemplate": "<b>Women</b>: %{customdata}<extra></extra>",
+     "offsetgroup": 1}
+  ];
+}
+
+function getLayout() {
+  const mobile = isMobile();
+  const tablet = isTablet();
+  
+  const titleSize = mobile ? 14 : 18;
+  const subtitleSize = mobile ? 11 : 13;
+  const axisTitleSize = mobile ? 10 : 12;
+  const tickSize = mobile ? 9 : 11;
+  const marginL = mobile ? 110 : tablet ? 160 : 200;
+  const marginT = mobile ? 65 : 80;
+  const marginB = mobile ? 50 : 60;
+  const marginR = mobile ? 15 : 30;
+
+  return {
+    "title": {
+      "text": `<b>The Effect Survives Every Control</b><br><span style="font-size:${subtitleSize}px;color:#8b949e">Partial correlations between shooting time and accuracy under progressive controls.${mobile ? '' : ' Hover for details.'}</span>`,
+      "font": {"size": titleSize, "color": "#c9d1d9", "family": "Inter, sans-serif"},
+      "x": 0.5, "xanchor": "center"
+    },
+    "xaxis": {
+      "color": "#8b949e", "gridcolor": "#21262d", "zeroline": false,
+      "title": {"text": mobile ? "Partial r (shoot_time → accuracy)" : "Partial Correlation (shoot_time → accuracy)", "font": {"size": axisTitleSize, "color": "#c9d1d9"}},
+      "range": [-0.35, 0.05],
+      "tickfont": {"size": tickSize}
+    },
+    "yaxis": {"color": "#c9d1d9", "gridcolor": "#21262d", "tickfont": {"size": mobile ? 9 : 11}},
+    "barmode": "group",
+    "plot_bgcolor": "#0d1117",
+    "paper_bgcolor": "#0d1117",
+    "font": {"family": "Inter, sans-serif", "color": "#c9d1d9"},
+    "legend": {
+      "bgcolor": "rgba(13,17,23,0.9)", "bordercolor": "#30363d", "borderwidth": 1,
+      "font": {"size": mobile ? 10 : 11},
+      "x": 0.01, "y": 0.01, "xanchor": "left", "yanchor": "bottom"
+    },
+    "margin": {"l": marginL, "r": marginR, "t": marginT, "b": marginB},
+    "hoverlabel": {"bgcolor": "#161b22", "bordercolor": "#30363d", "font": {"family": "Inter, sans-serif", "size": 12, "color": "#c9d1d9"}},
+    "shapes": [{"type": "line", "x0": 0, "x1": 0, "y0": -0.5, "y1": 5.5, "line": {"color": "#c9d1d9", "width": 0.8}, "yref": "y"}],
+    "annotations": [{
+      "text": "Data: IBU Datacenter | Beyond the Metric",
+      "xref": "paper", "yref": "paper", "x": 1, "y": -0.1,
+      "showarrow": false, "font": {"size": mobile ? 8 : 10, "color": "#484f58"}, "xanchor": "right"
+    }]
+  };
+}
+
+const config = {
+  responsive: true,
+  displayModeBar: !isMobile(),
+  modeBarButtonsToRemove: ['select2d', 'lasso2d', 'autoScale2d'],
+  displaylogo: false,
+  toImageButtonOptions: {
+    format: 'png', filename: 'btm_robustness', height: 800, width: 1200, scale: 2
+  }
+};
+
+Plotly.newPlot('robustness', makeTraces(), getLayout(), config);
+
+// Re-render on resize (debounced)
+let resizeTimer;
+window.addEventListener('resize', function() {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(function() {
+    Plotly.react('robustness', makeTraces(), getLayout(), {
+      ...config,
+      displayModeBar: !isMobile()
+    });
+  }, 150);
+});
+</script>
+</body>
+</html>
