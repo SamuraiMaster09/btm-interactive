@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figure 1: ROC Curves</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.35.0/plotly.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #090c11; font-family: 'DM Sans', sans-serif; color: #c9cfd8; }
+  #chart { width: 100%; max-width: 800px; margin: 0 auto; }
+</style>
+</head>
+<body>
+<div id="chart"></div>
+<script>
+var criteria = [
+  { name: '200+ Career Goals (AUC = 0.874)', color: '#00d4ff',
+    fpr: [0,0.01,0.03,0.05,0.10,0.15,0.20,0.30,0.40,0.50,0.60,0.70,0.80,0.90,1.0],
+    tpr: [0,0.20,0.35,0.45,0.60,0.70,0.78,0.85,0.90,0.94,0.96,0.98,0.99,1.0,1.0] },
+  { name: 'Star Caliber (AUC = 0.864)', color: '#f4a940',
+    fpr: [0,0.01,0.03,0.05,0.10,0.15,0.20,0.30,0.40,0.50,0.60,0.70,0.80,0.90,1.0],
+    tpr: [0,0.18,0.32,0.42,0.58,0.67,0.75,0.83,0.89,0.93,0.95,0.97,0.99,1.0,1.0] },
+  { name: '200+ GP Established (AUC = 0.760)', color: '#00e68a',
+    fpr: [0,0.02,0.05,0.10,0.15,0.20,0.25,0.30,0.40,0.50,0.60,0.70,0.80,0.90,1.0],
+    tpr: [0,0.10,0.23,0.38,0.48,0.55,0.60,0.65,0.73,0.80,0.86,0.91,0.95,0.98,1.0] },
+  { name: 'Any NHL Game (AUC = 0.744)', color: '#ef4444',
+    fpr: [0,0.02,0.05,0.10,0.15,0.20,0.25,0.30,0.40,0.50,0.60,0.70,0.80,0.90,1.0],
+    tpr: [0,0.08,0.20,0.33,0.43,0.50,0.56,0.62,0.70,0.78,0.84,0.90,0.94,0.97,1.0] }
+];
+var traces = [];
+traces.push({ x: [0,1], y: [0,1], mode: 'lines', line: { color: '#333', dash: 'dot', width: 1 }, name: 'Random (AUC = 0.500)', showlegend: true });
+for (var i = 0; i < criteria.length; i++) {
+  traces.push({ x: criteria[i].fpr, y: criteria[i].tpr, mode: 'lines', line: { color: criteria[i].color, width: 2.5 }, name: criteria[i].name });
+}
+var isMobile = window.innerWidth < 600;
+var layout = {
+  paper_bgcolor: '#090c11', plot_bgcolor: '#0f1219',
+  font: { family: 'DM Sans, sans-serif', color: '#c9cfd8', size: isMobile ? 10 : 12 },
+  title: { text: 'NHL Draft as Screening System: ROC Curves by Criterion', font: { size: isMobile ? 13 : 18, color: '#eef1f5' }, y: 0.98 },
+  xaxis: { title: 'False Positive Rate (1 - Specificity)', range: [0,1.01], gridcolor: '#1c2333', zeroline: false, tickfont: { size: isMobile ? 9 : 11 } },
+  yaxis: { title: 'True Positive Rate (Sensitivity)', range: [0,1.01], gridcolor: '#1c2333', zeroline: false, tickfont: { size: isMobile ? 9 : 11 } },
+  legend: { x: 0.95, y: 0.05, xanchor: 'right', yanchor: 'bottom', bgcolor: 'rgba(15,18,25,0.9)', bordercolor: '#1c2333', borderwidth: 1, font: { size: isMobile ? 8 : 11 } },
+  margin: { l: isMobile ? 45 : 60, r: isMobile ? 15 : 20, t: isMobile ? 50 : 60, b: isMobile ? 45 : 60 }
+};
+Plotly.newPlot('chart', traces, layout, { responsive: true, displayModeBar: false });
+</script>
+</body>
+</html>
